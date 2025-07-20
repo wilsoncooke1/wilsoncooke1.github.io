@@ -10,7 +10,6 @@ window.addEventListener("resize", () => {
 });
 
 function lerpColor(color1, color2, t) {
-  // Linearly interpolate between two colors
   const c1 = parseInt(color1.slice(1), 16);
   const c2 = parseInt(color2.slice(1), 16);
 
@@ -29,24 +28,34 @@ function lerpColor(color1, color2, t) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
+// Vine settings
+const MAX_PATH_LENGTH = 50;
+const VINE_COUNT = 30;
+
 let vines = [];
 
 function createVine(x) {
+  let angle = (Math.random() - 0.5) * 0.6;
+  let speed = 1 + Math.random() * 0.5;
+
+  let path = [];
+  let start = { x: x, y: height };
+  path.push(start);
+
   return {
-    path: [{ x: x, y: height }],
-    angle: (Math.random() - 0.5) * 0.6,
-    speed: 0.5 + Math.random() * 0.5,
-    life: 0,
-    colorShift: Math.random() // Controls where this vine is on the blue→green spectrum
+    path,
+    angle,
+    speed,
+    colorShift: Math.random(),
   };
 }
 
-for (let i = 0; i < 30; i++) {
+for (let i = 0; i < VINE_COUNT; i++) {
   vines.push(createVine(Math.random() * width));
 }
 
 function draw() {
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
   ctx.fillRect(0, 0, width, height);
 
   ctx.lineWidth = 2;
@@ -55,26 +64,31 @@ function draw() {
   for (let vine of vines) {
     let last = vine.path[vine.path.length - 1];
 
-    // Grow
-    let newX = last.x + Math.sin(vine.angle + vine.life * 0.02) * 2;
-    let newY = last.y - vine.speed;
-    vine.path.push({ x: newX, y: newY });
-    vine.life += 1;
+    // More erratic angle changes
+    vine.angle += (Math.random() - 0.5) * 0.2;
 
-    if (newY < -20) {
-      vine.path = [{ x: Math.random() * width, y: height }];
-      vine.angle = (Math.random() - 0.5) * 0.6;
-      vine.life = 0;
-      vine.colorShift = Math.random();
+    let newX = last.x + Math.sin(vine.angle) * 2;
+    let newY = last.y - vine.speed;
+
+    vine.path.push({ x: newX, y: newY });
+
+    if (vine.path.length > MAX_PATH_LENGTH) {
+      vine.path.shift();
     }
 
-    // Color gradient along path
-    ctx.beginPath();
+    // If off screen, reset
+    if (newY < -20 || newX < 0 || newX > width) {
+      let index = vines.indexOf(vine);
+      vines[index] = createVine(Math.random() * width);
+      continue;
+    }
+
+    // Draw segments with gradient
     for (let i = 0; i < vine.path.length - 1; i++) {
       const a = vine.path[i];
       const b = vine.path[i + 1];
-      let t = i / vine.path.length;
-      ctx.strokeStyle = lerpColor('#0077ff', '#00ff77', (vine.colorShift + t) % 1);
+      const t = (vine.colorShift + i / vine.path.length) % 1;
+      ctx.strokeStyle = lerpColor('#0077ff', '#00ff77', t);
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
