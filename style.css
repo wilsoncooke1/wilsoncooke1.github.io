@@ -27,7 +27,7 @@ canvas#vines {
 
 .content h1 {
   font-size: 2.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .content a {
@@ -35,12 +35,12 @@ canvas#vines {
   color: #cb482c;
   text-decoration: none;
   padding: 0.6rem 1.2rem;
-  border: 2px solid #00aaff;
+  border: 2px solid #cb482c;
   border-radius: 15px;
   transition: background 0.3s, color 0.3s;
 }
 
 .content a:hover {
-  background-color: #00aaff;
+  background-color: #cb482c;
   color: black;
 }
