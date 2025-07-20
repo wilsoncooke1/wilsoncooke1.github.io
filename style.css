@@ -32,11 +32,11 @@ canvas#vines {
 
 .content a {
   font-size: 1.2rem;
-  color: #00aaff;
+  color: #cb482c;
   text-decoration: none;
   padding: 0.6rem 1.2rem;
   border: 2px solid #00aaff;
-  border-radius: 6px;
+  border-radius: 15px;
   transition: background 0.3s, color 0.3s;
 }
 
