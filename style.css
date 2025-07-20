@@ -1,10 +1,10 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  font-family: Georgia, serif;
+  background: black;
+  color: white;
   overflow: hidden;
-  background-color: black;
-  font-family: 'Segoe UI', sans-serif;
 }
 
 canvas#vines {
@@ -28,9 +28,8 @@ canvas#vines {
 .content h1 {
   font-size: 3rem;
   margin-bottom: 1rem;
-  font-style: italic;
   transform: rotate(-2deg);
-  color: #00aaff;
+  color: #aae000;
 }
 
 .content a {
