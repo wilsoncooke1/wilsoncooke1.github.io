@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome</title>
+</head>
+<body style="font-family: sans-serif; text-align: center; margin-top: 100px;">
+  <h1>Hi</h1>
+  <p><a href="poetoastertimeline.pdf" target="_blank">The Complete Poe Toaster Timeline (PDF)</a></p>
+</body>
+</html>
