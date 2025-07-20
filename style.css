@@ -18,16 +18,15 @@ canvas#vines {
 }
 
 .content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  color: white;
-  top: 50%;
-  transform: translateY(-50%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin-top: 60px; 
+  padding: 1rem;
+  z-index: 2;
 }
 
 .content h1 {
-  margin-top: 60px;
   font-size: 3rem;
   margin-bottom: 1rem;
   color: #aae000;
