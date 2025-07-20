@@ -2,10 +2,9 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  font-family: Georgia, serif;
-  background: black;
-  color: white;
   overflow: hidden;
+  background-color: black;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 canvas#vines {
@@ -18,35 +17,30 @@ canvas#vines {
 }
 
 .content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin-top: 10vh;
-  padding: 1rem;
-  z-index: 2;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: white;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .content h1 {
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin-bottom: 1rem;
-  color: #aae000;
 }
 
 .content a {
-  display: inline-block;
   font-size: 1.2rem;
-  color: #00ffcc;
+  color: #00aaff;
   text-decoration: none;
   padding: 0.6rem 1.2rem;
-  border: 2px dashed #00ffcc;
-  border-radius: 10px;
-  background-color: rgba(0, 255, 204, 0.1);
-  transform: rotate(-1deg) skew(-1deg, -1deg);
-  box-shadow: 4px 4px 0 #00aaff;
-  transition: transform 0.2s, background-color 0.2s;
+  border: 2px solid #00aaff;
+  border-radius: 6px;
+  transition: background 0.3s, color 0.3s;
 }
 
 .content a:hover {
-  background-color: rgba(0, 255, 204, 0.3);
-  transform: rotate(1deg) skew(1deg, 1deg);
+  background-color: #00aaff;
+  color: black;
 }
