@@ -26,21 +26,28 @@ canvas#vines {
 }
 
 .content h1 {
-  font-size: 2.5rem;
+  font-size: 3rem;
   margin-bottom: 1rem;
+  font-style: italic;
+  transform: rotate(-2deg);
+  color: #00aaff;
 }
 
 .content a {
+  display: inline-block;
   font-size: 1.2rem;
-  color: #00aaff;
+  color: #00ffcc;
   text-decoration: none;
   padding: 0.6rem 1.2rem;
-  border: 2px solid #00aaff;
-  border-radius: 6px;
-  transition: background 0.3s, color 0.3s;
+  border: 2px dashed #00ffcc;
+  border-radius: 10px;
+  background-color: rgba(0, 255, 204, 0.1);
+  transform: rotate(-1deg) skew(-1deg, -1deg);
+  box-shadow: 4px 4px 0 #00aaff;
+  transition: transform 0.2s, background-color 0.2s;
 }
 
 .content a:hover {
-  background-color: #00aaff;
-  color: black;
+  background-color: rgba(0, 255, 204, 0.3);
+  transform: rotate(1deg) skew(1deg, 1deg);
 }
