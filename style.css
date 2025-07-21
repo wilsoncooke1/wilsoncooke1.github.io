@@ -45,22 +45,3 @@ canvas#vines {
   color: black;
 }
 
-.link-list {
-  list-style: none;
-  padding: 0;
-  font-size: 1.2rem;
-  font-family: Georgia, serif;
-}
-
-.link-list li {
-  margin: 0.75rem 0;
-}
-
-.link-list a {
-  text-decoration: none;
-  color: #004488;
-}
-
-.link-list a:hover {
-  text-decoration: underline;
-}
