@@ -6,7 +6,23 @@ html, body {
   background-color: black;
   font-family: 'Georgia', serif;
 }
+.link-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem; 
+  margin-top: 1.5rem;
+}
 
+.link-list a {
+  color: #aee; 
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+
+.link-list a:hover {
+  text-decoration: underline;
+}
 #flowerCanvas {
   position: fixed;
   top: 0;
