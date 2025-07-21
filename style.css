@@ -73,3 +73,8 @@ canvas#vines {
   z-index: -1;
   display: block;
 }
+
+.album-container {
+  position: relative;
+  z-index: 1;
+}
