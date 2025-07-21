@@ -1,1 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Love It Love It — Nana Grizol</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .falling-image {
+      position: absolute;
+      top: -100px;
+      width: 40px;
+      height: auto;
+      pointer-events: none;
+      animation: fall 6s linear forwards;
+      opacity: 0.85;
+    }
+    
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
 
+    body {
+      background-color: black;
+      color: #a6d3b3;
+      font-family: 'Georgia', serif;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 2.5rem;
+      color: #aee497;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      color: #cb482c;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .track-panel {
+      position: absolute;
+      background-color: rgba(255, 255, 255, 0.07);
+      border: 1px solid #666;
+      border-radius: 12px;
+      padding: 0.5rem;
+      cursor: move;
+      width: 300px;
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+      transition: box-shadow 0.3s;
+    }
+
+    .track-panel:hover {
+      box-shadow: 0 0 20px rgba(174, 228, 151, 0.3);
+    }
+
+    iframe {
+      border: none;
+      width: 100%;
+      height: 42px;
+    }
+
+.ripple {
+  position: absolute;
+  z-index: 9999;
+  border: 0.001px solid #aee497;
+  background: none;
+  border-radius: 100%;
+  transform: scale(10);
+  animation: ripple-ring 5s linear backwards;
+  pointer-events: none;
+  width: 100px;
+  height: 100px;
+  box-shadow: none;
+}
+@keyframes ripple-ring {
+  from {
+    opacity: 1;
+    transform: scale(0.1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(100);
+  }
+}
+  </style>
+</head>
+<body>
+  <a class="back-link" href="../nanagrizol.html">← Back to Nana Grizol</a>
+  <h1>Love It Love It (2008)</h1>
+
+  <div class="track-panel" style="top: 100px; left: 100px;">
+    <iframe style="border: 0; width: 100%; height: 42px;" src="https://bandcamp.com/EmbeddedPlayer/album=174015203/size=small/bgcol=ffffff/linkcol=0687f5/track=1855711874/transparent=true/" seamless><a href="https://orangetwinrecords.bandcamp.com/album/ruth">&quot;Ruth&quot; by Nana Grizol</a></iframe>
+
+
+  </div>
+
+  <div class="track-panel" style="top: 175px; left: 100px;">
+    <iframe style="border: 0; width: 100%; height: 42px;" src="https://bandcamp.com/EmbeddedPlayer/album=174015203/size=small/bgcol=ffffff/linkcol=0687f5/track=791297037/transparent=true/" seamless><a href="https://orangetwinrecords.bandcamp.com/album/ruth">&quot;Ruth&quot; by Nana Grizol</a></iframe>
+
+  </div>
+
+  <div class="track-panel" style="top: 250px; left: 100px;">
+    <iframe style="border: 0; width: 100%; height: 42px;" src="https://bandcamp.com/EmbeddedPlayer/album=174015203/size=small/bgcol=ffffff/linkcol=0687f5/track=994928600/transparent=true/" seamless><a href="https://orangetwinrecords.bandcamp.com/album/ruth">&quot;Ruth&quot; by Nana Grizol</a></iframe>
+
+  </div>
+    <div class="track-panel" style="top: 325px; left: 100px;">
+      <iframe style="border: 0; width: 100%; height: 42px;" src="https://bandcamp.com/EmbeddedPlayer/album=174015203/size=small/bgcol=ffffff/linkcol=0687f5/track=754467585/transparent=true/" seamless><a href="https://orangetwinrecords.bandcamp.com/album/ruth">&quot;Ruth&quot; by Nana Grizol</a></iframe>
+
+  </div>
+    <div class="track-panel" style="top: 400px; left: 100px;">
+    
+
+  </div>
+    <div class="track-panel" style="top: 475px; left: 100px;">
+    
+
+  </div>
+    <div class="track-panel" style="top: 100px; left: 600px;">
+
+  </div>
+    <div class="track-panel" style="top: 175px; left: 600px;">
+
+  </div>
+    <div class="track-panel" style="top: 250px; left: 600px;">
+
+  </div>
+    <div class="track-panel" style="top: 325px; left: 600px;">
+
+  </div>
+    <div class="track-panel" style="top: 400px; left: 600px;">
+
+  </div>
+
+  <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        function createFallingImage() {
+          const img = document.createElement('img');
+          img.src = 'tambourine.png'; 
+          img.className = 'falling-image';
+          img.style.left = Math.random() * window.innerWidth + 'px';
+          img.style.animationDuration = (Math.random() * 4 + 3) + 's';
+          img.style.width = (Math.random() * 20 + 30) + 'px';
+    
+          document.body.appendChild(img);
+    
+          img.addEventListener('animationend', () => {
+            img.remove();
+          });
+        }
+    
+        setInterval(createFallingImage, 600);
+      });
+    document.addEventListener("DOMContentLoaded", () => {
+
+      document.body.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+
+        const size = 10;
+        ripple.style.left = `${e.clientX - size / 2}px`;
+        ripple.style.top = `${e.clientY - size / 2}px`;
+
+        document.body.appendChild(ripple);
+
+        ripple.addEventListener('animationend', () => {
+          ripple.remove();
+        });
+      });
+      const panels = document.querySelectorAll('.track-panel');
+
+      panels.forEach(panel => {
+        let isDragging = false;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        panel.addEventListener('mousedown', (e) => {
+          isDragging = true;
+          offsetX = e.clientX - panel.offsetLeft;
+          offsetY = e.clientY - panel.offsetTop;
+          panel.style.zIndex = 1000;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+          if (isDragging) {
+            panel.style.left = (e.clientX - offsetX) + 'px';
+            panel.style.top = (e.clientY - offsetY) + 'px';
+          }
+        });
+
+        document.addEventListener('mouseup', () => {
+          isDragging = false;
+          panel.style.zIndex = '';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
