@@ -45,3 +45,21 @@ canvas#vines {
   color: black;
 }
 
+.album-list {
+  list-style: none;
+  padding-left: 0;
+  font-size: 1.1rem;
+}
+
+.album-list li {
+  margin-bottom: 1rem;
+}
+
+.album-list a {
+  color: #3a5f7d;
+  text-decoration: none;
+}
+
+.album-list a:hover {
+  text-decoration: underline;
+}
