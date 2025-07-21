@@ -63,3 +63,12 @@ canvas#vines {
 .album-list a:hover {
   text-decoration: underline;
 }
+
+#flowerCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1; /* behind the content */
+  width: 100vw;
+  height: 100vh;
+}
