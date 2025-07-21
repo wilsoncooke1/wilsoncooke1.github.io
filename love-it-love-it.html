@@ -56,22 +56,29 @@
       height: 42px;
     }
 
-    .ripple {
-      position: absolute;
-      z-index: 9999;
-      border-radius: 50%;
-      background: rgba(174, 228, 151, 0.25); /* light green */
-      transform: scale(0);
-      animation: ripple-animation 1.2s ease-out forwards;
-      pointer-events: none;
-    }
-
-    @keyframes ripple-animation {
-      to {
-        transform: scale(15);
-        opacity: 0;
-      }
-    }
+.ripple {
+  position: absolute;
+  z-index: 9999;
+  border: 0.001px solid #aee497;
+  background: none;
+  border-radius: 100%;
+  transform: scale(10);
+  animation: ripple-ring 5s linear backwards;
+  pointer-events: none;
+  width: 100px;
+  height: 100px;
+  box-shadow: none;
+}
+@keyframes ripple-ring {
+  from {
+    opacity: 1;
+    transform: scale(0.1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(100);
+  }
+}
   </style>
 </head>
 <body>
@@ -98,13 +105,12 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // Ripple effect
+      // Simple ring ripple effect
       document.body.addEventListener('click', function(e) {
         const ripple = document.createElement('span');
         ripple.classList.add('ripple');
 
-        const size = 200;
-        ripple.style.width = ripple.style.height = `${size}px`;
+        const size = 10;
         ripple.style.left = `${e.clientX - size / 2}px`;
         ripple.style.top = `${e.clientY - size / 2}px`;
 
@@ -115,7 +121,7 @@
         });
       });
 
-      // Dragging behavior
+      // Draggable track panels
       const panels = document.querySelectorAll('.track-panel');
 
       panels.forEach(panel => {
