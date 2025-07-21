@@ -3,15 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <title>Nana Grizol</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background-color: black;
+      font-family: 'Georgia', serif;
+      color: #3a5f7d;
+    }
+
+    canvas#flowerCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none; /* Allow clicks through canvas */
+    }
+
+    .album-container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .album-container h1 {
+      font-size: 2.5rem;
+      color: #aae000;
+      margin-bottom: 1rem;
+    }
+
+    .album-container p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .album-list {
+      list-style: none;
+      padding-left: 0;
+      font-size: 1.1rem;
+    }
+
+    .album-list li {
+      margin-bottom: 1rem;
+    }
+
+    .album-list a {
+      color: #3a5f7d;
+      text-decoration: none;
+    }
+
+    .album-list a:hover {
+      text-decoration: underline;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 2rem;
+      color: #3a5f7d;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body class="nana-page">
   <canvas id="flowerCanvas"></canvas>
+
   <div class="album-container">
-    <h1 style="color: #aae000;">Nana Grizol</h1>
-    <p style="margin-bottom: 2rem;">
-      are you earnest yet?
-    </p>
+    <h1>Nana Grizol</h1>
+    <p>are you earnest yet?</p>
 
     <ul class="album-list">
       <li><a href="albums/love-it-love-it.html">Love It Love It (2008)</a></li>
@@ -22,6 +91,76 @@
 
     <a class="back-link" href="index.html">← Back to Homepage</a>
   </div>
-  <script src=="flowers.js"> </script>
+
+  <script>
+    const canvas = document.getElementById("flowerCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let flowers = [];
+
+    function createFlower() {
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height,
+        petals: 6 + Math.floor(Math.random() * 6),
+        radius: 5 + Math.random() * 10,
+        speed: 0.3 + Math.random() * 0.5,
+        angle: Math.random() * 2 * Math.PI,
+        angleSpeed: 0.002 + Math.random() * 0.005
+      };
+    }
+
+    for (let i = 0; i < 80; i++) {
+      flowers.push(createFlower());
+    }
+
+    function drawFlower(flower) {
+      ctx.save();
+      ctx.translate(flower.x, flower.y);
+      ctx.rotate(flower.angle);
+      ctx.strokeStyle = "rgba(254, 240, 138, 0.25)"; // soft yellow with low opacity
+      ctx.lineWidth = 1;
+
+      for (let i = 0; i < flower.petals; i++) {
+        const angle = (i / flower.petals) * 2 * Math.PI;
+        const length = flower.radius + Math.random() * 3;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(length * Math.cos(angle), length * Math.sin(angle));
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let flower of flowers) {
+        flower.y += flower.speed;
+        flower.angle += flower.angleSpeed;
+
+        if (flower.y > canvas.height + 20) {
+          Object.assign(flower, createFlower());
+          flower.y = -20;
+        }
+
+        drawFlower(flower);
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
 </body>
 </html>
