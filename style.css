@@ -7,6 +7,24 @@ html, body {
   font-family: 'Georgia', serif;
 }
 
+#flowerCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;         
+  display: block;
+}
+
+.album-container {
+  position: relative;        
+  z-index: 1;               
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
 canvas#vines {
   position: absolute;
   top: 0;
@@ -64,17 +82,4 @@ canvas#vines {
   text-decoration: underline;
 }
 
-#flowerCanvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  display: block;
-}
 
-.album-container {
-  position: relative;
-  z-index: 1;
-}
