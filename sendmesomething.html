@@ -37,6 +37,7 @@
     canvas {
       border: 1px solid #aee497;
       background: white;
+      touch-action: none;
     }
 
     .button-group {
@@ -80,56 +81,74 @@
 
   <a href="index.html">← Back</a>
 
-    <script>
-      const canvas = document.getElementById('drawing');
-      const ctx = canvas.getContext('2d');
-      let drawing = false;
-      let lastX = 0;
-      let lastY = 0;
-    
-      canvas.addEventListener('mousedown', (e) => {
-        drawing = true;
-        const rect = canvas.getBoundingClientRect();
-        lastX = e.clientX - rect.left;
-        lastY = e.clientY - rect.top;
-      });
-    
-      canvas.addEventListener('mouseup', () => {
-        drawing = false;
-      });
-    
-      canvas.addEventListener('mouseleave', () => {
-        drawing = false;
-      });
-    
-      canvas.addEventListener('mousemove', (e) => {
-        if (!drawing) return;
-        const rect = canvas.getBoundingClientRect();
-        const currentX = e.clientX - rect.left;
-        const currentY = e.clientY - rect.top;
-    
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = '#000';
-        ctx.beginPath();
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(currentX, currentY);
-        ctx.stroke();
-    
-        lastX = currentX;
-        lastY = currentY;
-      });
-    
-      function clearCanvas() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-    
-      function prepareDrawingData(e) {
-        const dataURL = canvas.toDataURL('image/png');
-        const drawingField = document.getElementById('drawing_link');
-        drawingField.value = `View drawing by pasting this into a browser:\n${dataURL}`;
-      }
-    </script>
+  <script>
+    const canvas = document.getElementById('drawing');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let lastX = 0;
+    let lastY = 0;
 
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches) {
+        return {
+          x: e.touches[0].clientX - rect.left,
+          y: e.touches[0].clientY - rect.top
+        };
+      } else {
+        return {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        };
+      }
+    }
+
+    function startDrawing(e) {
+      e.preventDefault();
+      drawing = true;
+      const pos = getCoords(e);
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function stopDrawing(e) {
+      e.preventDefault();
+      drawing = false;
+    }
+
+    function draw(e) {
+      e.preventDefault();
+      if (!drawing) return;
+      const pos = getCoords(e);
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#000';
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
+
+    canvas.addEventListener('touchstart', startDrawing, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDrawing, { passive: false });
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function prepareDrawingData(e) {
+      const dataURL = canvas.toDataURL('image/png');
+      const drawingField = document.getElementById('drawing_link');
+      drawingField.value = `View drawing by pasting this into a browser:\n${dataURL}`;
+    }
+  </script>
 </body>
 </html>
