@@ -17,7 +17,6 @@
     overflow: hidden; 
   }
 
-
   .binder {
     max-width: 900px;
     height: 90vh; 
@@ -28,7 +27,6 @@
     background: #fff;
     position: relative;
     box-sizing: border-box;
-
     overflow-y: auto;
     scroll-behavior: smooth;
   }
@@ -64,10 +62,10 @@
   }
 
   .photo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
-    image-rendering: pixelated;
+    justify-content: center;
   }
 
   .photo {
@@ -77,16 +75,16 @@
     padding: 4px;
     cursor: pointer;
     box-sizing: border-box;
-    max-width: 150px;
-    max-height: 150px;
+    margin-bottom: 0.5rem;
   }
 
   .photo img {
     display: block;
-    width: 100%;
+    width: auto;
     height: auto;
+    max-width: 150px;
+    max-height: 150px;
     image-rendering: pixelated;
-    image-rendering: crisp-edges;
     border: 1px solid black;
   }
 
@@ -94,7 +92,6 @@
     filter: invert(1);
     outline: 1px solid black;
   }
-
 
   body::after {
     pointer-events: none;
@@ -138,7 +135,6 @@
     return div;
   }
 
-
   function loadPhotos() {
     let index = 1;
 
@@ -149,14 +145,14 @@
       img.src = src;
 
       img.onload = () => {
-
         photoGrid.appendChild(createPhotoElement(src, `Photo ${index}`));
         index++;
         tryLoad();
       };
 
       img.onerror = () => {
-
+        index++;
+        tryLoad();
       };
     }
 
