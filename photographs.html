@@ -61,6 +61,24 @@
     text-transform: uppercase;
   }
 
+  .back-button {
+    display: inline-block;
+    background: white;
+    border: 3px solid black;
+    padding: 0.25rem 1rem;
+    font-size: 2rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+  }
+
+  .back-button:hover {
+    background: black;
+    color: white;
+  }
+
   .photo-grid {
     display: flex;
     flex-wrap: wrap;
@@ -114,11 +132,11 @@
       <div class="ring-hole"></div>
     </div>
 
+    <a href="index.html" class="back-button">BACK</a>
+
     <h1>PHOTOGRAPHS</h1>
 
-    <div class="photo-grid" id="photoGrid">
-
-    </div>
+    <div class="photo-grid" id="photoGrid"></div>
   </main>
 
 <script>
