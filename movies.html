@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline</title>
+    <style>
+        body {
+            font-family: monospace;
+            background-color: #000000;
+            color: #ffffff;
+            margin: 0;
+            padding: 10px;
+        }
+
+        header {
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            font-family: monospace;
+            background: #000000;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            padding: 5px;
+        }
+
+        #timeline {
+            width: 100%;
+        }
+
+        .timeline-row {
+            display: flex;
+            align-items: flex-start;
+            background: #000000;
+        }
+
+        .year-label {
+            font-size: 1rem;
+            font-weight: bold;
+            min-width: 60px;
+            padding: 5px 0;
+            flex-shrink: 0;
+        }
+
+        .movie-scroll-container {
+            display: flex;
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .movie-scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+        .movie-scroll-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .poster-wrapper {
+            width: 150px;
+            height: 225px;
+            flex-shrink: 0;
+            background-color: #000000;
+            position: relative;
+        }
+
+        .poster-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .poster-fallback {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #ffffff;
+            border: 1px solid #333333;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <input type="file" id="csvFileInput" accept=".csv">
+    </header>
+
+    <main id="timeline"></main>
+
+    <script>
+        document.getElementById('csvFileInput').addEventListener('change', handleFile, false);
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                parseAndRenderCSV(e.target.result);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(text) {
+            const lines = text.split('\n');
+            const result = [];
+            if (lines.length === 0) return result;
+
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const matches = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
+                const row = matches.map(val => val.trim().replace(/^"|"$/g, ''));
+                
+                if (row.length >= headers.length) {
+                    const obj = {};
+                    headers.forEach((header, index) => {
+                        obj[header] = row[index];
+                    });
+                    result.push(obj);
+                }
+            }
+            return result;
+        }
+
+        function parseAndRenderCSV(csvText) {
+            const movies = parseCSV(csvText);
+            const timelineContainer = document.getElementById('timeline');
+            timelineContainer.innerHTML = ''; 
+
+            const groupedByYear = {};
+
+            movies.forEach(movie => {
+                const year = movie.Year;
+                const name = movie.Name;
+                const uri = movie['Letterboxd URI'] || movie['URI'];
+                
+                if (year && name) {
+                    if (!groupedByYear[year]) {
+                        groupedByYear[year] = [];
+                    }
+
+                    let slug = "";
+                    if (uri) {
+                        const parts = uri.split('/');
+                        slug = parts[parts.length - 1] || parts[parts.length - 2];
+                    }
+
+                    let posterUrl = "";
+                    if (slug) {
+                        posterUrl = `https://a.ltrbxd.com/resized/film-poster/${slug.split('').join('/')}/${slug}-0-150-0-225-crop.jpg`;
+                    }
+
+                    groupedByYear[year].push({ name, posterUrl });
+                }
+            });
+
+            const sortedYears = Object.keys(groupedByYear).sort((a, b) => b - a);
+
+            sortedYears.forEach(year => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'timeline-row';
+
+                const yearLabel = document.createElement('div');
+                yearLabel.className = 'year-label';
+                yearLabel.innerText = year;
+                rowDiv.appendChild(yearLabel);
+
+                const scrollContainer = document.createElement('div');
+                scrollContainer.className = 'movie-scroll-container';
+
+                groupedByYear[year].forEach(movie => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'poster-wrapper';
+
+                    const fallback = document.createElement('div');
+                    fallback.className = 'poster-fallback';
+                    fallback.innerText = movie.name;
+                    wrapper.appendChild(fallback);
+
+                    if (movie.posterUrl) {
+                        const img = document.createElement('img');
+                        img.className = 'poster-img';
+                        img.src = movie.posterUrl;
+                        img.alt = movie.name;
+                        
+                        img.onload = () => { fallback.style.display = 'none'; };
+                        wrapper.appendChild(img);
+                    }
+
+                    scrollContainer.appendChild(wrapper);
+                });
+
+                rowDiv.appendChild(scrollContainer);
+                timelineContainer.appendChild(rowDiv);
+            });
+        }
+    </script>
+</body>
+</html>
