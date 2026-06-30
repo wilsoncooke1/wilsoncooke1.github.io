@@ -1,213 +1,151 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timeline</title>
-    <style>
-        body {
-            font-family: monospace;
-            background-color: #000000;
-            color: #ffffff;
-            margin: 0;
-            padding: 10px;
+<script>
+
+    const TMDB_KEY = "032c4a509e1af3345711db83117b2dab";
+    const CSV_PATH = "watched.csv";
+    const TMDB_IMG = "https://image.tmdb.org/t/p/w92";
+    const CONCURRENCY = 8;
+
+    let movieData = [];
+
+    window.addEventListener("DOMContentLoaded", async () => {
+        await loadCSV();
+    });
+
+    async function loadCSV() {
+        try {
+            const res = await fetch(CSV_PATH);
+            if (!res.ok) throw new Error("Could not load watched.csv");
+
+            const text = await res.text();
+
+            const results = Papa.parse(text, {
+                header: true,
+                skipEmptyLines: true
+            });
+
+            movieData = results.data.map(row => ({
+                title: row.Name || row.Title || "Unknown",
+                year: parseInt(row.Year) || 0,
+                dateWatched: row.Date || row["Watched Date"] || "",
+                url: row["Letterboxd URI"] || "#",
+                posterPath: null
+            }));
+
+            document.getElementById("status").textContent =
+                movieData.length + " films loaded";
+
+            await fetchPosters(movieData);
+
+        } catch (err) {
+            document.getElementById("status").textContent =
+                "Failed to load watched.csv";
+            console.error(err);
+        }
+    }
+
+
+    async function fetchPosters(movies) {
+        const prog = document.getElementById("progress");
+        prog.style.display = "block";
+
+        let done = 0;
+        const total = movies.length;
+
+        for (let i = 0; i < movies.length; i += CONCURRENCY) {
+            const batch = movies.slice(i, i + CONCURRENCY);
+
+            await Promise.all(batch.map(async (m) => {
+                m.posterPath = await lookupPoster(m.title, m.year);
+                done++;
+                prog.textContent = `${done} / ${total}`;
+            }));
+
+            render(movies);
         }
 
-        header {
-            margin-bottom: 20px;
+        prog.style.display = "none";
+        render(movies);
+    }
+
+    async function lookupPoster(title, year) {
+        try {
+            const q = encodeURIComponent(title);
+
+            let url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${q}&language=en-US&page=1`;
+
+            if (year) {
+                const r = await fetch(url + `&year=${year}`);
+                const d = await r.json();
+                if (d.results?.[0]?.poster_path) return d.results[0].poster_path;
+            }
+
+            const r2 = await fetch(url);
+            const d2 = await r2.json();
+
+            return d2.results?.[0]?.poster_path || null;
+        } catch {
+            return null;
+        }
+    }
+
+
+    function render(movies) {
+        const byYear = {};
+
+        for (const m of movies) {
+            const y = m.year || "?";
+            if (!byYear[y]) byYear[y] = [];
+            byYear[y].push(m);
         }
 
-        input[type="file"] {
-            font-family: monospace;
-            background: #000000;
-            color: #ffffff;
-            border: 1px solid #ffffff;
-            padding: 5px;
-        }
+        const years = Object.keys(byYear).sort((a, b) => b - a);
 
-        #timeline {
-            width: 100%;
-        }
+        const journal = document.getElementById("journal");
+        journal.innerHTML = "";
 
-        .timeline-row {
-            display: flex;
-            align-items: flex-start;
-            background: #000000;
-        }
+        for (const year of years) {
+            const row = document.createElement("div");
+            row.className = "year-row";
 
-        .year-label {
-            font-size: 1rem;
-            font-weight: bold;
-            min-width: 60px;
-            padding: 5px 0;
-            flex-shrink: 0;
-        }
+            const label = document.createElement("div");
+            label.className = "year-label";
+            label.textContent = year;
 
-        .movie-scroll-container {
-            display: flex;
-            overflow-x: auto;
-            width: 100%;
-        }
+            const posters = document.createElement("div");
+            posters.className = "posters";
 
-        .movie-scroll-container::-webkit-scrollbar {
-            display: none;
-        }
-        .movie-scroll-container {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+            for (const m of byYear[year]) {
+                if (m.posterPath) {
+                    const a = document.createElement("a");
+                    a.href = m.url;
+                    a.target = "_blank";
+                    a.title = m.title;
 
-        .poster-wrapper {
-            width: 150px;
-            height: 225px;
-            flex-shrink: 0;
-            background-color: #000000;
-            position: relative;
-        }
+                    const img = document.createElement("img");
+                    img.src = TMDB_IMG + m.posterPath;
+                    img.alt = m.title;
+                    img.loading = "lazy";
 
-        .poster-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
+                    img.onerror = function () {
+                        this.parentElement.replaceWith(makePlaceholder());
+                    };
 
-        .poster-fallback {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 5px;
-            box-sizing: border-box;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #ffffff;
-            border: 1px solid #333333;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <input type="file" id="csvFileInput" accept=".csv">
-    </header>
-
-    <main id="timeline"></main>
-
-    <script>
-        document.getElementById('csvFileInput').addEventListener('change', handleFile, false);
-
-        function handleFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                parseAndRenderCSV(e.target.result);
-            };
-            reader.readAsText(file);
-        }
-
-        function parseCSV(text) {
-            const lines = text.split('\n');
-            const result = [];
-            if (lines.length === 0) return result;
-
-            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                
-                const matches = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
-                const row = matches.map(val => val.trim().replace(/^"|"$/g, ''));
-                
-                if (row.length >= headers.length) {
-                    const obj = {};
-                    headers.forEach((header, index) => {
-                        obj[header] = row[index];
-                    });
-                    result.push(obj);
+                    a.appendChild(img);
+                    posters.appendChild(a);
+                } else {
+                    posters.appendChild(makePlaceholder());
                 }
             }
-            return result;
+
+            row.appendChild(label);
+            row.appendChild(posters);
+            journal.appendChild(row);
         }
+    }
 
-        function parseAndRenderCSV(csvText) {
-            const movies = parseCSV(csvText);
-            const timelineContainer = document.getElementById('timeline');
-            timelineContainer.innerHTML = ''; 
-
-            const groupedByYear = {};
-
-            movies.forEach(movie => {
-                const year = movie.Year;
-                const name = movie.Name;
-                const uri = movie['Letterboxd URI'] || movie['URI'];
-                
-                if (year && name) {
-                    if (!groupedByYear[year]) {
-                        groupedByYear[year] = [];
-                    }
-
-                    let slug = "";
-                    if (uri) {
-                        const parts = uri.split('/');
-                        slug = parts[parts.length - 1] || parts[parts.length - 2];
-                    }
-
-                    let posterUrl = "";
-                    if (slug) {
-                        posterUrl = `https://a.ltrbxd.com/resized/film-poster/${slug.split('').join('/')}/${slug}-0-150-0-225-crop.jpg`;
-                    }
-
-                    groupedByYear[year].push({ name, posterUrl });
-                }
-            });
-
-            const sortedYears = Object.keys(groupedByYear).sort((a, b) => b - a);
-
-            sortedYears.forEach(year => {
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'timeline-row';
-
-                const yearLabel = document.createElement('div');
-                yearLabel.className = 'year-label';
-                yearLabel.innerText = year;
-                rowDiv.appendChild(yearLabel);
-
-                const scrollContainer = document.createElement('div');
-                scrollContainer.className = 'movie-scroll-container';
-
-                groupedByYear[year].forEach(movie => {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'poster-wrapper';
-
-                    const fallback = document.createElement('div');
-                    fallback.className = 'poster-fallback';
-                    fallback.innerText = movie.name;
-                    wrapper.appendChild(fallback);
-
-                    if (movie.posterUrl) {
-                        const img = document.createElement('img');
-                        img.className = 'poster-img';
-                        img.src = movie.posterUrl;
-                        img.alt = movie.name;
-                        
-                        img.onload = () => { fallback.style.display = 'none'; };
-                        wrapper.appendChild(img);
-                    }
-
-                    scrollContainer.appendChild(wrapper);
-                });
-
-                rowDiv.appendChild(scrollContainer);
-                timelineContainer.appendChild(rowDiv);
-            });
-        }
-    </script>
-</body>
-</html>
+    function makePlaceholder() {
+        const d = document.createElement("div");
+        d.className = "poster-placeholder";
+        return d;
+    }
+</script>
