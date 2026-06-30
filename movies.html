@@ -26,7 +26,7 @@
 
         .year-row {
             display: flex;
-            align-items: flex-start;
+            align-items: stretch;
             border-top: 1px solid #000;
         }
 
@@ -43,6 +43,7 @@
         .posters {
             display: flex;
             flex-wrap: wrap;
+            flex: 1;
         }
 
         .posters img {
@@ -67,7 +68,6 @@
 <script>
     const TMDB_KEY = '032c4a509e1af3345711db83117b2dab'; 
     
-
     const CSV_FILE_PATH = 'watched.csv'; 
 
     let movieData = [];
@@ -91,12 +91,12 @@
                 if (TMDB_KEY && TMDB_KEY !== 'YOUR_TMDB_API_KEY_HERE') {
                     await fetchPosters(movieData, TMDB_KEY);
                 } else {
-                    document.getElementById('progress').textContent = `Loaded ${movieData.length} films (No API key configured provided).`;
+                    document.getElementById('progress').textContent = `Loaded ${movieData.length} films .`;
                     render(movieData);
                 }
             },
             error: function(err) {
-                document.getElementById('progress').textContent = `Error loading ${CSV_FILE_PATH}. Make sure it is in the root of your repository.`;
+                document.getElementById('progress').textContent = `Error loading ${CSV_FILE_PATH}.`;
                 console.error(err);
             }
         });
@@ -141,12 +141,30 @@
 
     function render(movies) {
         const byYear = {};
+        let maxYear = 0;
+        let minYear = Infinity;
+
         for (const m of movies) {
-            const y = m.year || '?';
-            if (!byYear[y]) byYear[y] = [];
-            byYear[y].push(m);
+            const y = m.year;
+            if (y > 0) { 
+                if (y > maxYear) maxYear = y;
+                if (y < minYear) minYear = y;
+            }
+            const labelKey = y || '?';
+            if (!byYear[labelKey]) byYear[labelKey] = [];
+            byYear[labelKey].push(m);
         }
-        const years = Object.keys(byYear).sort((a, b) => b - a);
+
+        const years = [];
+        if (maxYear >= minYear && minYear !== Infinity) {
+            for (let y = maxYear; y >= minYear; y--) {
+                years.push(y.toString());
+            }
+        }
+        
+        if (byYear['?']) {
+            years.push('?');
+        }
 
         const journal = document.getElementById('journal');
         journal.innerHTML = '';
@@ -163,22 +181,28 @@
             const posters = document.createElement('div');
             posters.className = 'posters';
 
-            for (const m of byYear[year]) {
-                if (m.posterPath) {
-                    const a = document.createElement('a');
-                    a.href = m.url;
-                    a.target = '_blank';
-                    a.title = m.title;
-                    const img = document.createElement('img');
-                    img.src = TMDB_IMG + m.posterPath;
-                    img.alt = m.title;
-                    img.loading = 'lazy';
-                    img.onerror = function() { this.parentElement.replaceWith(makePlaceholder()); };
-                    a.appendChild(img);
-                    posters.appendChild(a);
-                } else {
-                    posters.appendChild(makePlaceholder());
+            if (byYear[year]) {
+                for (const m of byYear[year]) {
+                    if (m.posterPath) {
+                        const a = document.createElement('a');
+                        a.href = m.url;
+                        a.target = '_blank';
+                        a.title = m.title;
+                        const img = document.createElement('img');
+                        img.src = TMDB_IMG + m.posterPath;
+                        img.alt = m.title;
+                        img.loading = 'lazy';
+                        img.onerror = function() { this.parentElement.replaceWith(makePlaceholder()); };
+                        a.appendChild(img);
+                        posters.appendChild(a);
+                    } else {
+                        posters.appendChild(makePlaceholder());
+                    }
                 }
+            } else {
+                const emptySpace = document.createElement('div');
+                emptySpace.style.height = '90px';
+                posters.appendChild(emptySpace);
             }
 
             row.appendChild(posters);
