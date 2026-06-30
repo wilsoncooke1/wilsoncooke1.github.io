@@ -1,135 +1,179 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Journal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    const TMDB_KEY = "032c4a509e1af3345711db83117b2dab";
-    const CSV_PATH = "watched.csv";
-    const TMDB_IMG = "https://image.tmdb.org/t/p/w92";
-    const CONCURRENCY = 8;
+        body {
+            background: #fff;
+            font-family: monospace;
+            font-size: 13px;
+            color: #000;
+        }
+
+        #progress {
+            padding: 12px 16px;
+            font-family: monospace;
+            font-size: 12px;
+            border-bottom: 1px solid #000;
+        }
+
+        #journal { }
+
+        .year-row {
+            display: flex;
+            align-items: flex-start;
+            border-top: 1px solid #000;
+        }
+
+        .year-label {
+            width: 60px;
+            min-width: 60px;
+            padding: 8px 6px;
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1;
+            border-right: 1px solid #000;
+        }
+
+        .posters {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .posters img {
+            display: block;
+            width: 60px;
+            height: 90px;
+            object-fit: cover;
+        }
+
+        .poster-placeholder {
+            width: 60px;
+            height: 90px;
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+
+<div id="progress">Loading journal...</div>
+<div id="journal"></div>
+
+<script>
+    const TMDB_KEY = '032c4a509e1af3345711db83117b2dab'; 
+    
+
+    const CSV_FILE_PATH = 'watched.csv'; 
 
     let movieData = [];
+    const TMDB_IMG = 'https://image.tmdb.org/t/p/w92';
+    const CONCURRENCY = 8;
 
-    window.addEventListener("DOMContentLoaded", async () => {
-        await loadCSV();
+    window.addEventListener('DOMContentLoaded', () => {
+        Papa.parse(CSV_FILE_PATH, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: async function(results) {
+                movieData = results.data.map((row, i) => ({
+                    title:       row.Name || row.Title || 'Unknown',
+                    year:        parseInt(row.Year) || 0,
+                    dateWatched: row.Date || row['Watched Date'] || '',
+                    url:         row['Letterboxd URI'] || '#',
+                    posterPath:  null
+                }));
+
+                if (TMDB_KEY && TMDB_KEY !== 'YOUR_TMDB_API_KEY_HERE') {
+                    await fetchPosters(movieData, TMDB_KEY);
+                } else {
+                    document.getElementById('progress').textContent = `Loaded ${movieData.length} films (No API key configured provided).`;
+                    render(movieData);
+                }
+            },
+            error: function(err) {
+                document.getElementById('progress').textContent = `Error loading ${CSV_FILE_PATH}. Make sure it is in the root of your repository.`;
+                console.error(err);
+            }
+        });
     });
 
-    async function loadCSV() {
-        try {
-            const res = await fetch(CSV_PATH);
-            if (!res.ok) throw new Error("Could not load watched.csv");
-
-            const text = await res.text();
-
-            const results = Papa.parse(text, {
-                header: true,
-                skipEmptyLines: true
-            });
-
-            movieData = results.data.map(row => ({
-                title: row.Name || row.Title || "Unknown",
-                year: parseInt(row.Year) || 0,
-                dateWatched: row.Date || row["Watched Date"] || "",
-                url: row["Letterboxd URI"] || "#",
-                posterPath: null
-            }));
-
-            document.getElementById("status").textContent =
-                movieData.length + " films loaded";
-
-            await fetchPosters(movieData);
-
-        } catch (err) {
-            document.getElementById("status").textContent =
-                "Failed to load watched.csv";
-            console.error(err);
-        }
-    }
-
-
-    async function fetchPosters(movies) {
-        const prog = document.getElementById("progress");
-        prog.style.display = "block";
-
+    async function fetchPosters(movies, apiKey) {
+        const prog = document.getElementById('progress');
         let done = 0;
         const total = movies.length;
 
         for (let i = 0; i < movies.length; i += CONCURRENCY) {
             const batch = movies.slice(i, i + CONCURRENCY);
-
             await Promise.all(batch.map(async (m) => {
-                m.posterPath = await lookupPoster(m.title, m.year);
+                m.posterPath = await lookupPoster(m.title, m.year, apiKey);
                 done++;
-                prog.textContent = `${done} / ${total}`;
+                prog.textContent = `Loading posters: ${done} / ${total}`;
             }));
-
             render(movies);
         }
 
-        prog.style.display = "none";
+        prog.style.display = 'none';
         render(movies);
     }
 
-    async function lookupPoster(title, year) {
+    async function lookupPoster(title, year, apiKey) {
         try {
             const q = encodeURIComponent(title);
-
-            let url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_KEY}&query=${q}&language=en-US&page=1`;
-
+            const base = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${q}&language=en-US&page=1`;
             if (year) {
-                const r = await fetch(url + `&year=${year}`);
-                const d = await r.json();
-                if (d.results?.[0]?.poster_path) return d.results[0].poster_path;
+                const r = await fetch(`${base}&year=${year}`);
+                if (r.ok) {
+                    const d = await r.json();
+                    if (d.results && d.results[0] && d.results[0].poster_path) return d.results[0].poster_path;
+                }
             }
-
-            const r2 = await fetch(url);
+            const r2 = await fetch(base);
+            if (!r2.ok) return null;
             const d2 = await r2.json();
-
-            return d2.results?.[0]?.poster_path || null;
-        } catch {
-            return null;
-        }
+            return d2.results && d2.results[0] && d2.results[0].poster_path ? d2.results[0].poster_path : null;
+        } catch { return null; }
     }
-
 
     function render(movies) {
         const byYear = {};
-
         for (const m of movies) {
-            const y = m.year || "?";
+            const y = m.year || '?';
             if (!byYear[y]) byYear[y] = [];
             byYear[y].push(m);
         }
-
         const years = Object.keys(byYear).sort((a, b) => b - a);
 
-        const journal = document.getElementById("journal");
-        journal.innerHTML = "";
+        const journal = document.getElementById('journal');
+        journal.innerHTML = '';
 
         for (const year of years) {
-            const row = document.createElement("div");
-            row.className = "year-row";
+            const row = document.createElement('div');
+            row.className = 'year-row';
 
-            const label = document.createElement("div");
-            label.className = "year-label";
+            const label = document.createElement('div');
+            label.className = 'year-label';
             label.textContent = year;
+            row.appendChild(label);
 
-            const posters = document.createElement("div");
-            posters.className = "posters";
+            const posters = document.createElement('div');
+            posters.className = 'posters';
 
             for (const m of byYear[year]) {
                 if (m.posterPath) {
-                    const a = document.createElement("a");
+                    const a = document.createElement('a');
                     a.href = m.url;
-                    a.target = "_blank";
+                    a.target = '_blank';
                     a.title = m.title;
-
-                    const img = document.createElement("img");
+                    const img = document.createElement('img');
                     img.src = TMDB_IMG + m.posterPath;
                     img.alt = m.title;
-                    img.loading = "lazy";
-
-                    img.onerror = function () {
-                        this.parentElement.replaceWith(makePlaceholder());
-                    };
-
+                    img.loading = 'lazy';
+                    img.onerror = function() { this.parentElement.replaceWith(makePlaceholder()); };
                     a.appendChild(img);
                     posters.appendChild(a);
                 } else {
@@ -137,15 +181,16 @@
                 }
             }
 
-            row.appendChild(label);
             row.appendChild(posters);
             journal.appendChild(row);
         }
     }
 
     function makePlaceholder() {
-        const d = document.createElement("div");
-        d.className = "poster-placeholder";
+        const d = document.createElement('div');
+        d.className = 'poster-placeholder';
         return d;
     }
 </script>
+</body>
+</html>
