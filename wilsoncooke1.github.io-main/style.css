@@ -1,0 +1,101 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: black;
+  font-family: 'Georgia', serif;
+}
+.link-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem; 
+  margin-top: 1.5rem;
+}
+
+.link-list a {
+  color: #aee; 
+  text-decoration: none;
+  font-size: 1.2rem;
+}
+
+.link-list a:hover {
+  text-decoration: underline;
+}
+#flowerCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;         
+  display: block;
+}
+
+.album-container {
+  position: relative;        
+  z-index: 1;               
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+canvas#vines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: white;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.content a {
+  font-size: 1.2rem;
+  color: #cb482c;
+  text-decoration: none;
+  padding: 0.6rem 1.2rem;
+  border: 2px solid #cb482c;
+  border-radius: 15px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.content a:hover {
+  background-color: #cb482c;
+  color: black;
+}
+
+.album-list {
+  list-style: none;
+  padding-left: 0;
+  font-size: 1.1rem;
+}
+
+.album-list li {
+  margin-bottom: 1rem;
+}
+
+.album-list a {
+  color: #3a5f7d;
+  text-decoration: none;
+}
+
+.album-list a:hover {
+  text-decoration: underline;
+}
+
+
