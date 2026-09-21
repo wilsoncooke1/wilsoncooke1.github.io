@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PETITION</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+
+    * {
+      border-radius: 0 !important;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    body {
+      background-color: #000;
+      color: #000;
+    }
+
+
+    .film-container {
+      background-color: #fff;
+      border: 4px solid #000;
+      position: relative;
+    }
+
+
+    .sprocket-strip {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 28px;
+      background-color: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      z-index: 10;
+    }
+
+    .sprocket-strip.left {
+      left: 0;
+      border-right: 2px solid #000;
+    }
+
+    .sprocket-strip.right {
+      right: 0;
+      border-left: 2px solid #000;
+    }
+
+    .sprocket-hole {
+      width: 14px;
+      height: 10px;
+      background-color: #fff;
+      border: 1px solid #000;
+      margin: 6px 0;
+    }
+
+    canvas {
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-8">
+
+  <!-- Main Reel Container -->
+  <div class="film-container w-full max-w-xl my-auto relative overflow-hidden py-6 px-10 sm:px-14">
+    
+    <!-- Left Sprocket Holes -->
+    <div class="sprocket-strip left">
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+    </div>
+
+    <!-- Right Sprocket Holes -->
+    <div class="sprocket-strip right">
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+      <div class="sprocket-hole"></div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="px-2 sm:px-4">
+      
+      <!-- Header -->
+      <div class="border-b-4 border-black pb-3 mb-6 text-center">
+        <h1 class="text-3xl font-black tracking-tighter uppercase">PETITION IN FAVOUR OF THE CREATION OF A CINEMA CLUB AT CONCORDIA</h1>
+      </div>
+
+      <!-- Petition Form -->
+      <form id="petitionForm" class="space-y-5">
+        
+        <!-- Box 1: Name -->
+        <div>
+          <label class="block text-xs font-black uppercase mb-1 tracking-widest">1. FULL NAME</label>
+          <input 
+            type="text" 
+            id="nameInput" 
+            required
+            placeholder="Lastname, Firstname"
+            class="w-full border-2 border-black p-3 bg-white text-black font-bold focus:bg-black focus:text-white focus:outline-none transition-colors duration-150"
+          />
+        </div>
+
+        <!-- Box 2: Student Number -->
+        <div>
+          <label class="block text-xs font-black uppercase mb-1 tracking-widest">2. STUDENT NUMBER</label>
+          <input 
+            type="text" 
+            id="studentNumInput" 
+            required
+            placeholder="ID# on student card"
+            class="w-full border-2 border-black p-3 bg-white text-black font-bold focus:bg-black focus:text-white focus:outline-none transition-colors duration-150"
+          />
+        </div>
+
+        <!-- Box 3: Faculty -->
+        <div>
+          <label class="block text-xs font-black uppercase mb-1 tracking-widest">3. FACULTY</label>
+          <input 
+            type="text" 
+            id="facultyInput" 
+            required
+            placeholder="e.g. Arts and Science, Fine Arts, etc."
+            class="w-full border-2 border-black p-3 bg-white text-black font-bold focus:bg-black focus:text-white focus:outline-none transition-colors duration-150"
+          />
+        </div>
+
+        <!-- Box 4: Signature Canvas -->
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="block text-xs font-black uppercase tracking-widest">4. SIGNATURE</label>
+            <button 
+              type="button" 
+              id="clearSigBtn" 
+              class="text-xs font-bold border border-black px-2 py-0.5 hover:bg-black hover:text-white uppercase transition-colors"
+            >
+              CLEAR
+            </button>
+          </div>
+          <div class="border-2 border-black bg-white relative">
+            <canvas id="signatureCanvas" class="w-full h-36 cursor-crosshair block"></canvas>
+            <div id="sigPlaceholder" class="absolute inset-0 flex items-center justify-center pointer-events-none text-gray-400 font-bold text-xs uppercase tracking-widest">
+              DRAW SIGNATURE HERE
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2">
+          <button 
+            type="submit" 
+            id="submitBtn"
+            class="w-full bg-black text-white font-black text-lg py-4 border-2 border-black hover:bg-white hover:text-black uppercase tracking-wider transition-colors duration-150"
+          >
+            SUBMIT SIGNATURE
+          </button>
+        </div>
+
+      </form>
+
+      <!-- Footer Info -->
+      <div class="mt-6 pt-3 border-t-2 border-black flex justify-between text-[10px] font-bold uppercase tracking-widest">
+        <span>BY SIGNING THIS PETITION YOU CONSENT TO YOUR INFORMATION BEING SUBMITTED TO THE CLUBS DEPARTMENT AT THE CSU</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Hardcoded Apps Script Endpoint URL
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_X06ntL_Lr-YPCROtQX3gIhbPaY2qn2G-PYghRdz672FSpmLjhJ77MVaNY7nu9QAzhQ/exec";
+
+    // Signature Canvas Logic
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    const clearBtn = document.getElementById('clearSigBtn');
+    const placeholder = document.getElementById('sigPlaceholder');
+    
+    let isDrawing = false;
+    let hasSigned = false;
+
+    // Resize Canvas for High DPI Crispness
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#000000';
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    setTimeout(resizeCanvas, 50);
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches && e.touches[0]) {
+        return {
+          x: e.touches[0].clientX - rect.left,
+          y: e.touches[0].clientY - rect.top
+        };
+      }
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+
+    function startDrawing(e) {
+      isDrawing = true;
+      hasSigned = true;
+      placeholder.style.display = 'none';
+      const coords = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(coords.x, coords.y);
+      if (e.type === 'touchstart') e.preventDefault();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const coords = getCoords(e);
+      ctx.lineTo(coords.x, coords.y);
+      ctx.stroke();
+      if (e.type === 'touchmove') e.preventDefault();
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hasSigned = false;
+      placeholder.style.display = 'flex';
+    }
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
+
+    canvas.addEventListener('touchstart', startDrawing, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDrawing);
+
+    clearBtn.addEventListener('click', clearCanvas);
+
+    // Form Submission Logic
+    const form = document.getElementById('petitionForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!hasSigned) {
+        alert('PLEASE PROVIDE A SIGNATURE BEFORE SUBMITTING.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'SUBMITTING...';
+
+      const signatureData = canvas.toDataURL('image/png');
+
+      const payload = {
+        name: document.getElementById('nameInput').value,
+        studentNum: document.getElementById('studentNumInput').value,
+        faculty: document.getElementById('facultyInput').value,
+        signature: signatureData
+      };
+
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+
+        alert('Petition signed and submitted successfully. Thanks!!!!');
+        form.reset();
+        clearCanvas();
+      } catch (err) {
+        console.error('Submission failed:', err);
+        alert('Submission failed. Please try again');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'SUBMIT';
+      }
+    });
+  </script>
+</body>
+</html>
